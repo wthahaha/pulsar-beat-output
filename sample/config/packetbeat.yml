@@ -1,0 +1,75 @@
+#################### Packetbeat Configuration Example #########################
+
+# =============================== Network device ===============================
+
+
+packetbeat.interfaces.device: eth0
+packetbeat.interfaces.internal_networks:
+  - private
+
+# =========================== Transaction protocols ============================
+
+packetbeat.protocols:
+- type: dns
+  # Configure the ports where to listen for DNS traffic. You can disable
+  # the DNS protocol by commenting out the list of ports.
+  ports: [53]
+  include_authorities: true
+  include_additionals: true
+
+# ================================== Outputs ===================================
+
+# Configure what output to use when sending the data collected by the beat.
+
+# -------------------------------- Kafka Output --------------------------------
+# output.kafka:
+#   # Boolean flag to enable or disable the output module.
+#   enabled: true
+#   hosts: ["localhost:9092"]
+#   topic: beats
+#   version: '2.13'
+#   codec.json:
+#     pretty: true
+
+# ------------------------------- Console Output -------------------------------
+#output.console:
+#  enabled: true
+#  codec.json:
+#    pretty: true
+
+# -------------------------- pulsar output ------------------------------
+output.pulsar:
+  url: "pulsar://127.0.0.1:6650"
+  topic: dns_topic
+  name: dns123
+  log_level: info
+
+# ================================= Processors =================================
+
+processors:
+  - include_fields:
+      fields:
+        - client.bytes
+        - server.bytes
+        - client.ip
+        - server.ip
+        - dns.question.name
+        - dns.question.etld_plus_one
+        - dns.response_code
+        - dns.flags.authoritative
+        - dns.flags.recursion_available
+        - dns.flags.recursion_desired
+        - dns.answers_count
+        - dns.authorities
+        - dns.authorities_count
+        - dns.authorities.name
+        - dns.authorities.type
+        - dns.authorities.class
+        - dns.additionals
+        - dns.additionals.data
+        - dns.opt.version
+        - dns.opt.udp_size
+        - dns.opt.ext_rcode
+        - dns.answers
+
+# ================================== Logging ===================================
